@@ -21,7 +21,7 @@ var fetch = function(path, cb) {
         }
     }
 
-    xmlhttp.open('GET', path, true);
+    xmlhttp.open('GET', '/' + path, true);
     xmlhttp.send();
 };
 
@@ -98,11 +98,17 @@ function wrap_element(element, ui) {
             var maybe_class = element.attributes['data-widget'];
             var custom = uiloader.custom_widgets[maybe_class];
             if (maybe_class && !custom) {
-                console.error('no custom class for: ' + class_name);
+                console.error('no custom class for: ' + maybe_class);
             }
 
             if (custom) {
-                var widget = new custom(parent);
+                if (custom.from_spec) {
+                    var widget = custom.from_spec(element, parent);
+                    parent.add_child(widget);
+                }
+                else {
+                    var widget = new custom(parent);
+                }
             }
             else {
                 var widget = new Widget(parent, element.name);
@@ -129,7 +135,7 @@ function wrap_element(element, ui) {
         break;
     case 'text':
         return function(parent) {
-            parent.text(element.data);
+            parent.append_html(element.data);
         };
         break;
     case 'comment':
@@ -174,14 +180,16 @@ UiLoader.prototype.load = function(name, content, cb) {
                 funcs.push(wrap_element.bind(self)(element, ui));
             });
 
-            var widget = new Widget(parent);
+            // technically the first tag should be the parent?
+            // no.. sigh.. if no parent, fuck
+            //var widget = new Widget(parent);
 
             // apply all of the loaded elements onto the widget
             funcs.forEach(function(func) {
-                func(widget);
+                func(parent);
             });
 
-            ui._ui = widget;
+            //ui._ui = widget;
 
             return ui;
         };

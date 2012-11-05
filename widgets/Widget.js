@@ -16,6 +16,11 @@ var Widget = function(parent, tag_name) {
         return;
     }
 
+    if (!(parent instanceof Widget)) {
+        parent.appendChild(_elem);
+        return;
+    }
+
     function bind_event(dom_name, emit_name) {
         _elem[dom_name] = function(ev) {
             self.emit(emit_name, ev);
@@ -78,7 +83,34 @@ Widget.prototype.attr = function(name, val) {
 Widget.prototype.text = function(text) {
     var self = this;
 
-    self._elem.appendChild(document.createTextNode(text));
+    self._elem.textContent = text;
+
+    return self;
+};
+
+Widget.prototype.append_html = function(html) {
+    var self = this;
+
+    self._elem.insertAdjacentHTML('beforeend', html);
+
+    return self;
+};
+
+Widget.prototype.remove = function() {
+    var self = this;
+
+    self._elem.remove();
+
+    return self;
+};
+
+Widget.prototype.empty = function() {
+    var self = this;
+
+    var elem = self._elem;
+    while (elem.firstChild) {
+        elem.removeChild(elem.firstChild);
+    }
 
     return self;
 };
