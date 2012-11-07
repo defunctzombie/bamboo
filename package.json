@@ -1,6 +1,6 @@
 {
   "name": "bamboo",
-  "version": "0.0.0",
+  "version": "0.0.1-pre0",
   "description": "web app framework",
   "main": "index.js",
   "scripts": {
