@@ -1,28 +1,14 @@
 var EventEmitter = require('events').EventEmitter;
 var inherits = require('inherits');
 
-var Widget = function(parent, tag_name) {
+var Widget = function(parent, element) {
     var self = this;
 
-    // if our widget wants to be something else, it should specify
-    self.tag_name = tag_name || 'div';
-
-    var _elem = self._elem = self.create_element();
-
-    // TODO(shtylman) should have a top level parent widget
-    // to do this
-    if (!parent) {
-        document.body.appendChild(_elem);
-        return;
-    }
-
-    if (!(parent instanceof Widget)) {
-        parent.appendChild(_elem);
-        return;
-    }
+    element = element || document.createElement('div');
+    var elem = self._elem = element;
 
     function bind_event(dom_name, emit_name) {
-        _elem[dom_name] = function(ev) {
+        elem[dom_name] = function(ev) {
             self.emit(emit_name, ev);
         };
     }
@@ -31,6 +17,7 @@ var Widget = function(parent, tag_name) {
     bind_event('onkeydown', 'keydown');
     bind_event('onkeyup', 'keyup');
     bind_event('onkeypress', 'keypress');
+    bind_event('oncontextmenu', 'contextmenu');
 
     // TODO(shtylman) context menu stuff
     // need nice way of making context menus on elements
@@ -39,24 +26,29 @@ var Widget = function(parent, tag_name) {
     //};
 
     // forms
-    _elem.onsubmit = function(event) {
-
-        // we don't submit our forms
+    elem.onsubmit = function(event) {
+        // prevent regular submitting
+        // we are in the new era!
         event.preventDefault();
 
         self.emit('submit', event);
     };
 
-    // we are now part of the parent in the dom
-    parent.add_child(self);
+    if (!parent) {
+        return;
+    }
+
+    // box the parent if it is not a widget
+    if (!(parent instanceof Widget)) {
+        parent.appendChild(elem);
+        return;
+    }
+
+    if (!elem.parentNode) {
+        parent.add_child(self);
+    }
 };
 inherits(Widget, EventEmitter);
-
-Widget.prototype.create_element = function() {
-    var self = this;
-
-    return document.createElement(self.tag_name);
-};
 
 Widget.prototype.value = function(val) {
     var self = this;
@@ -120,8 +112,6 @@ Widget.prototype.show = function() {
 
     // TODO(shtylman) previous display value
     self._elem.style.display = 'block';
-
-    self.emit('show');
 
     return self;
 };
