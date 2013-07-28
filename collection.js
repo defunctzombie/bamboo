@@ -24,6 +24,7 @@ var Collection = function(opt) {
 
         ajax.get(self.url).end(function(res) {
             var list = res.body;
+            self._items = [];
             list.forEach(function(friend) {
                 var item = Model(friend);
                 item.collection = self;
