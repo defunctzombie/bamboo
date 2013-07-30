@@ -1,9 +1,9 @@
 {
-    "name": "bamboo",
-    "version": "0.0.0",
-    "author": "Roman Shtylman <shtylman@gmail.com>",
-    "dependencies": {
-        "inherits": "2.0.0",
-        "superagent": "shtylman/superagent#0.15.4-dz0"
-    }
+  "name": "bamboo",
+  "version": "0.0.1-pre1",
+  "author": "Roman Shtylman <shtylman@gmail.com>",
+  "dependencies": {
+    "inherits": "2.0.0",
+    "superagent": "shtylman/superagent#0.15.4-dz0"
+  }
 }
