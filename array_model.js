@@ -1,5 +1,4 @@
-var EventEmitter = require('events').EventEmitter;
-var inherits = require('inherits');
+var Emitter = require('emitter');
 
 var ArrayModel = function(Type, init, parent) {
     if (!(this instanceof ArrayModel)) {
@@ -24,6 +23,8 @@ var ArrayModel = function(Type, init, parent) {
 
 ArrayModel.prototype = new Array();
 
+Emitter(ArrayModel.prototype);
+
 ArrayModel.prototype.toJSON = function() {
     return Array.prototype.slice.call(this);
 };
@@ -45,8 +46,5 @@ ArrayModel.prototype.push = function(obj) {
     self.emit('add', val);
     return val;
 };
-
-ArrayModel.prototype.emit = EventEmitter.prototype.emit;
-ArrayModel.prototype.on = EventEmitter.prototype.on;
 
 module.exports = ArrayModel;

@@ -1,7 +1,5 @@
-var EventEmitter = require('events').EventEmitter;
-
+var Emitter = require('emitter');
 var ajax = require('superagent');
-var inherits = require('inherits');
 
 var Collection = function(opt) {
 
@@ -17,17 +15,26 @@ var Collection = function(opt) {
         self._items = [];
     };
 
-    inherits(Const, EventEmitter);
+    Emitter(Const.prototype);
 
     Const.prototype.fetch = function(cb) {
         var self = this;
 
-        ajax.get(self.url).end(function(res) {
+        ajax.get(self.url).end(function(err, res) {
+            if (err) {
+                return cb(err);
+            }
+
+            if (res.status !== 200) {
+                return cb(new Error('failed to fetch'));
+            }
+
             var list = res.body;
             self._items = [];
-            list.forEach(function(friend) {
-                var item = Model(friend);
+            list.forEach(function(detail) {
+                var item = Model(detail);
                 item.collection = self;
+                item.url = self.url + '/' + item.id;
 
                 self._items.push(item);
                 self.emit('add', item);

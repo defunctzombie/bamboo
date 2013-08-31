@@ -3,7 +3,10 @@
   "version": "0.0.1-pre1",
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "dependencies": {
-    "inherits": "2.0.0",
+    "emitter-component": "1.0.1",
     "superagent": "shtylman/superagent#0.15.4-dz0"
+  },
+  "browser": {
+    "emitter": "emitter-component"
   }
 }
