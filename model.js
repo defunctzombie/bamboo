@@ -134,7 +134,7 @@ var Model = function(opt) {
         });
     };
 
-    Construct.prototype.remove = function(cb) {
+    Construct.prototype.destroy = function(cb) {
         var self = this;
         // model was never saved to server
         if (self.is_new) {
@@ -142,8 +142,12 @@ var Model = function(opt) {
         }
 
         ajax.del(self.url).end(function(err, res) {
+            if (err) {
+                return cb(err);
+            }
+
+            self.emit('destroy');
             cb(null);
-            self.emit('remove');
         });
     };
 
