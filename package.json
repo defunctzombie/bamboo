@@ -3,10 +3,24 @@
   "version": "0.0.1-pre2",
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "dependencies": {
-    "emitter-component": "1.0.1",
-    "superagent": "shtylman/superagent#0.15.4-dz0"
+    "emitter-component": "1.0.1"
+  },
+  "scripts": {
+    "test": "zuul test/index.js"
+  },
+  "main": "./index.js",
+  "devDependencies": {
+    "superagent": "0.15.7",
+    "zuul": "0.2.1",
+    "mocha": "1.13.0",
+    "express": "3.4.4"
   },
   "browser": {
     "emitter": "emitter-component"
+  },
+  "testling": {
+    "server": "./test/server.js",
+    "files": "./test/index.js",
+    "harness": "mocha-tdd"
   }
 }

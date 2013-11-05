@@ -1,0 +1,7 @@
+ui: qunit
+server: ./test/support/server.js
+browsers:
+  - name: chrome
+    version: 27..latest
+  - name: ie
+    version: 8..latest

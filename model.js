@@ -1,10 +1,13 @@
 var Emitter = require('emitter');
-var ajax = require('superagent');
 
+var config = require('./config');
 var ArrayModel = require('./array_model');
 
 var Model = function(opt) {
     var properties = Object.keys(opt);
+
+    // ajax function for CRUD
+    var ajax = config.ajax;
 
     var Construct = function(initial) {
         if (!(this instanceof Construct)) {
@@ -14,7 +17,16 @@ var Model = function(opt) {
         Emitter.call(this);
 
         var self = this;
-        self.is_new = true;
+
+        // default state is saved
+        self._saved = true;
+
+        // basepath for the url
+        self._url_root = '';
+
+        if (initial) {
+            self.id = initial.id;
+        }
 
         properties.forEach(function(prop) {
             var config = opt[prop];
@@ -60,6 +72,8 @@ var Model = function(opt) {
                 set: function(val) {
                     var old = prop_val;
                     prop_val = val;
+                    self._saved = false;
+
                     self.emit('change ' + prop, val, old);
                 }
             });
@@ -83,65 +97,118 @@ var Model = function(opt) {
         return obj;
     };
 
+    // if the model has an ID property, then it is not considered new
+    Construct.prototype.is_new = function() {
+        var self = this;
+        return !self.id;
+    };
+
+    // return true if the model state has been persistent to the server
+    // false for 'is_new()' or if a property has changed since last sync
+    Construct.prototype.is_saved = function() {
+        var self = this;
+        return !self.is_new() && self._saved;
+    };
+
+    Construct.prototype.url_root = function(val) {
+        var self = this;
+
+        if (val) {
+            self._url_root = val;
+            return self;
+        }
+
+        return self._url_root;
+    };
+
+    // return the current working url of the model
+    // if the model is_new, then this is the 'url_root'
+    // otherwise it is 'url_root/id'
+    Construct.prototype.url = function() {
+        var self = this;
+
+        if (self.is_new()) {
+            return self.url_root()
+        }
+
+        return self.url_root() + '/' + self.id;
+    };
+
     Construct.prototype.save = function(cb) {
         var self = this;
+
+        // TODO, not sure about this...
         if (self.parent) {
             return self.parent.save();
         }
 
         cb = cb || function() {};
 
-        if (self.is_new) {
-            return ajax.post(self.url).send(self).end(function(err, res) {
-                if (err) {
-                    return cb(err);
-                }
+        var ajax_opt = {
+            url: self.url(),
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: self,
+        };
 
-                if (res.status !== 200) {
-                    return cb(new Error(res.body.error || 'failed to save'));
-                }
-
-                self.is_new = false;
-                // id of the model should be the response
-                self.id = res.body.id;
-                self.url += '/' + self.id;
-
-                return cb(null);
-            });
+        if (self.is_new()) {
+            ajax_opt.method = 'POST'
         }
 
-        ajax.put(self.url).send(self).end(function(err, res) {
-            return cb(err);
-        });
-    };
-
-    Construct.prototype.fetch = function(cb) {
-        var self = this;
-        ajax.get(self.url).end(function(err, res) {
+        ajax(ajax_opt, function(err, res) {
             if (err) {
                 return cb(err);
             }
 
-            if (res.status !== 200) {
-                return cb(new Error('failed to fetch'));
+            var body = res.body;
+            self.id = body.id;
+
+            return cb(null);
+        });
+    };
+
+    Construct.prototype.fetch = function(id, cb) {
+        var self = this;
+
+        var ajax_opt = {
+            url: self.url() + '/' + id,
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        };
+
+        ajax(ajax_opt, function(err, res) {
+            if (err) {
+                return cb(err);
             }
 
-            var val = Construct(res.body);
-            val.is_new = false;
-            val.url = self.url;
+            // set our properties
+            var body = res.body;
+            for (var key in body) {
+                self[key] = body[key];
+            }
 
-            cb(null, val);
+            return cb(null);
         });
     };
 
     Construct.prototype.destroy = function(cb) {
         var self = this;
         // model was never saved to server
-        if (self.is_new) {
+        if (self.is_new()) {
             return;
         }
 
-        ajax.del(self.url).end(function(err, res) {
+        var ajax_opt = {
+            url: self.url(),
+            method: 'DELETE'
+        };
+
+        ajax(ajax_opt, function(err) {
             if (err) {
                 return cb(err);
             }
