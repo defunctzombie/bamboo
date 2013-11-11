@@ -18,10 +18,5 @@
   },
   "browser": {
     "emitter": "emitter-component"
-  },
-  "testling": {
-    "server": "./test/server.js",
-    "files": "./test/index.js",
-    "harness": "mocha-tdd"
   }
 }
