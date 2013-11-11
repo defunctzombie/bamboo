@@ -6,13 +6,14 @@
     "emitter-component": "1.0.1"
   },
   "scripts": {
-    "test": "zuul test/index.js"
+    "test": "zuul test/index.js",
+    "test-local": "zuul --local 8080 -- test/index.js"
   },
   "main": "./index.js",
   "devDependencies": {
     "superagent": "0.15.7",
-    "zuul": "0.2.1",
-    "mocha": "1.13.0",
+    "zuul": "1.0.1",
+    "mocha": "1.14.0",
     "express": "3.4.4"
   },
   "browser": {

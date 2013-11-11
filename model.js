@@ -22,11 +22,31 @@ var Model = function(opt) {
         self._saved = true;
 
         // basepath for the url
-        self._url_root = '';
+        self.url_root = Construct.url_root;
 
         if (initial) {
             self.id = initial.id;
         }
+
+        // url property can be used to overrride the model's url
+        var _url = undefined;
+        Object.defineProperty(self, 'url', {
+            get: function() {
+                // if user explicitly set, return their value
+                if (_url) {
+                    return _url;
+                }
+
+                if (self.is_new()) {
+                    return self.url_root;
+                }
+
+                return self.url_root + '/' + self.id;
+            },
+            set: function(val) {
+                _url = val;
+            }
+        });
 
         properties.forEach(function(prop) {
             var config = opt[prop];
@@ -64,6 +84,56 @@ var Model = function(opt) {
                 return;
             }
 
+            // create an object wrapper, this lets us emit events
+            // when internal properties are set
+            function inner_obj(key_path, props, initial) {
+                var properties = {};
+                initial = initial || {};
+
+                Object.keys(props).forEach(function(key) {
+                    var path = key_path + '.' + key;
+                    var value_holder = initial[key];
+
+                    properties[key] = {
+                        enumerable: true,
+                        get: function() {
+                            return value_holder;
+                        },
+                        set: function(val) {
+                            var old = value_holder;
+                            value_holder = val;
+                            self.emit('change ' + path, val, old);
+                        }
+                    }
+                });
+                return Object.create(null, properties);
+            }
+
+            // user specified an inner object
+            var keys = Object.keys(config);
+            if (keys.length > 0) {
+
+                prop_val = inner_obj(prop, config, prop_val);
+
+                // if the nothing above captured and config is a regular object
+                // see if it has keys
+                Object.defineProperty(self, prop, {
+                    enumerable: true,
+                    get: function() {
+                        return prop_val;
+                    },
+                    set: function(val) {
+                        var old = prop_val;
+                        prop_val = inner_obj(prop, config, val);
+                        self._saved = false;
+                        self.emit('change ' + prop, prop_val, old);
+                    }
+                });
+
+                return;
+            }
+
+            // if the nothing above captured and config is a single valueish
             Object.defineProperty(self, prop, {
                 enumerable: true,
                 get: function() {
@@ -73,8 +143,7 @@ var Model = function(opt) {
                     var old = prop_val;
                     prop_val = val;
                     self._saved = false;
-
-                    self.emit('change ' + prop, val, old);
+                    self.emit('change ' + prop, prop_val, old);
                 }
             });
         });
@@ -110,30 +179,6 @@ var Model = function(opt) {
         return !self.is_new() && self._saved;
     };
 
-    Construct.prototype.url_root = function(val) {
-        var self = this;
-
-        if (val) {
-            self._url_root = val;
-            return self;
-        }
-
-        return self._url_root;
-    };
-
-    // return the current working url of the model
-    // if the model is_new, then this is the 'url_root'
-    // otherwise it is 'url_root/id'
-    Construct.prototype.url = function() {
-        var self = this;
-
-        if (self.is_new()) {
-            return self.url_root()
-        }
-
-        return self.url_root() + '/' + self.id;
-    };
-
     Construct.prototype.save = function(cb) {
         var self = this;
 
@@ -145,7 +190,7 @@ var Model = function(opt) {
         cb = cb || function() {};
 
         var ajax_opt = {
-            url: self.url(),
+            url: self.url,
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -154,17 +199,20 @@ var Model = function(opt) {
             body: self,
         };
 
-        if (self.is_new()) {
-            ajax_opt.method = 'POST'
-        }
+        var is_new = self.is_new();
+        ajax_opt.method = is_new ? 'POST' : 'PUT';
 
         ajax(ajax_opt, function(err, res) {
             if (err) {
                 return cb(err);
             }
 
-            var body = res.body;
-            self.id = body.id;
+            // only expect id back if new
+            // for updating existing we don't do this?
+            if (is_new) {
+                var body = res.body;
+                self.id = body.id;
+            }
 
             return cb(null);
         });
@@ -174,7 +222,7 @@ var Model = function(opt) {
         var self = this;
 
         var ajax_opt = {
-            url: self.url() + '/' + id,
+            url: self.url_root + '/' + id,
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -204,7 +252,7 @@ var Model = function(opt) {
         }
 
         var ajax_opt = {
-            url: self.url(),
+            url: self.url,
             method: 'DELETE'
         };
 
