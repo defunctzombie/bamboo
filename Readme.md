@@ -50,6 +50,7 @@ post.title = 'my first post';
 post.author = {
     name = 'Edgar Poe';
 };
+post.author.name = 'Fannie Poe';
 
 // the above will cause the `post` object to emit events
 // 'change title';

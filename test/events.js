@@ -39,15 +39,10 @@ test('nested change - primary', function(done) {
     // but will start out undefined
     assert.ok(post.author === undefined);
 
-    done = after(3, done);
+    done = after(2, done);
 
     post.once('change author', function(val) {
         assert.deepEqual(val, { name: undefined, email: undefined });
-        done();
-    });
-
-    post.once('change author.name', function(val) {
-        assert.equal(val, undefined);
         assert.equal(post.author.name, undefined);
         done();
     });
@@ -74,17 +69,8 @@ test('nested change - field', function(done) {
     // but will start out undefined
     assert.ok(post.author === undefined);
 
-    done = after(2, done);
-
     post.once('change author', function(val) {
         assert.equal(val.name, 'Edgar Poe');
-        assert.equal(post.author.name, 'Edgar Poe');
-        done();
-    });
-
-    // changing the author caused a name change
-    post.once('change author.name', function(val) {
-        assert.equal(val, 'Edgar Poe');
         assert.equal(post.author.name, 'Edgar Poe');
         done();
     });

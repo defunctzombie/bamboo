@@ -171,18 +171,8 @@ var Model = function(schema, opt) {
                         self._saved = false;
 
                         self.emit('change ' + prop, prop_val, old);
-
-                        // we really need to emit change events for
-                        // anything like author.name as well
-                        var props = prop_val;
-                        Object.keys(props).forEach(function(key) {
-                            var path = prop + '.' + key;
-                            self.emit('change ' + path, props[key], (old ? old[key] : undefined));
-                        });
                     }
                 });
-
-                return;
             }
 
             // if the nothing above captured and config is a single valueish
