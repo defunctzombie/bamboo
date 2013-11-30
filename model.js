@@ -173,6 +173,8 @@ var Model = function(schema, opt) {
                         self.emit('change ' + prop, prop_val, old);
                     }
                 });
+
+                return;
             }
 
             // if the nothing above captured and config is a single valueish
