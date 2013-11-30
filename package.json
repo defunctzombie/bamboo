@@ -14,7 +14,9 @@
     "superagent": "0.15.7",
     "zuul": "1.0.4",
     "mocha": "1.14.0",
-    "express": "3.4.4"
+    "express": "3.4.4",
+    "after": "0.8.1",
+    "uuid": "1.4.1"
   },
   "browser": {
     "emitter": "emitter-component"
