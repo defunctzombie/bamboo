@@ -1,0 +1,11 @@
+ui: mocha-qunit
+server: ./test/support/server.js
+browsers:
+  - name: chrome
+    version: 28..latest
+  - name: firefox
+    version: 23..latest
+  - name: sarafi
+    version: 5..latest
+  - name: ie
+    version: 10..latest

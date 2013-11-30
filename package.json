@@ -3,8 +3,25 @@
   "version": "0.0.1-pre2",
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "dependencies": {
-    "emitter-component": "1.0.1",
-    "superagent": "shtylman/superagent#0.15.4-dz0"
+    "emitter-component": "1.1.0",
+    "superagent": "0.15.7",
+    "xtend": "2.1.1"
+  },
+  "scripts": {
+    "test": "zuul test/index.js",
+    "test-local": "zuul --local 8080 -- test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/defunctzombie/bamboo.git"
+  },
+  "main": "./index.js",
+  "devDependencies": {
+    "zuul": "1.0.4",
+    "mocha": "1.14.0",
+    "express": "3.4.5",
+    "after": "0.8.1",
+    "uuid": "1.4.1"
   },
   "browser": {
     "emitter": "emitter-component"
