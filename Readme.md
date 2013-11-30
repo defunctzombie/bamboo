@@ -1,4 +1,4 @@
-# bamboo [![Build Status](https://travis-ci.org/defunctzombie/bamboo.png?branch=wip)](https://travis-ci.org/defunctzombie/bamboo)
+# bamboo [![Build Status](https://travis-ci.org/defunctzombie/bamboo.png?branch=master)](https://travis-ci.org/defunctzombie/bamboo)
 
 A model library for client side javascript making it easy to load and persist javascript-object like data structures to/from a backend (typically over ajax) and use them in view/template bindings.
 
