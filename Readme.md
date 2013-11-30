@@ -37,7 +37,7 @@ This will be the basepath for url resources. Typically it will be the `plural` o
 Post.url_root = '/posts';
 ```
 
-See the [REST resources][wiki-rest-resources] wiki page for an overview of how these routes are used.
+See the [sync][wiki-sync] wiki page for an overview of how these routes are used.
 
 ### instantiate a new model
 
@@ -128,7 +128,7 @@ Bamboo draws heavy inspiration from [backbone models](http://backbonejs.org/#Mod
 
 MIT
 
-[wiki]: wiki
-[wiki-emitter]: emitter
-[wiki-rest-resources]: wiki-rest-resouces
-[wiki-options]: options
+[wiki]: https://github.com/defunctzombie/bamboo/wiki
+[wiki-emitter]: https://github.com/defunctzombie/bamboo/wiki/Emitter
+[wiki-sync]: https://github.com/defunctzombie/bamboo/wiki/sync
+[wiki-options]: https://github.com/defunctzombie/bamboo/wiki/Model#options
