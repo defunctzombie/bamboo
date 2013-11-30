@@ -3,7 +3,8 @@
   "version": "0.0.1-pre2",
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "dependencies": {
-    "emitter-component": "1.1.0"
+    "emitter-component": "1.1.0",
+    "xtend": "2.1.1"
   },
   "scripts": {
     "test": "zuul test/index.js",
