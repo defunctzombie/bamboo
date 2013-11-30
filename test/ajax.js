@@ -2,9 +2,7 @@
 
 var assert = require('assert');
 
-var bamboo = require('../');
-bamboo.ajax = require('./support/ajax');
-
+var ajax = require('../sync/ajax');
 var Model = require('../model');
 
 suite('ajax');
@@ -16,7 +14,7 @@ test('build a model', function() {
     Post = Model({
         title: String,
         author: String
-    });
+    }, { sync: ajax });
 
     // set the urlroot defining the basepath
     Post.url_root = '/posts';
@@ -86,8 +84,7 @@ test('is_new() - after save', function(done) {
         assert.equal(post.title, 'post title');
         assert.equal(post.author, 'post author');
 
-        var existing = Post();
-        existing.fetch(post.id, function(err) {
+        Post.get(post.id, function(err, existing) {
             assert.ifError(err);
             assert.equal(existing.id, post.id);
             assert.equal(existing.title, 'post title');
@@ -98,8 +95,7 @@ test('is_new() - after save', function(done) {
 });
 
 test('update existing and save', function(done) {
-    var post = Post();
-    post.fetch(created_id, function(err) {
+    Post.get(created_id, function(err, post) {
         assert.ifError(err);
         assert.equal(post.title, 'post title');
         assert.equal(post.author, 'post author');
@@ -113,8 +109,7 @@ test('update existing and save', function(done) {
 });
 
 test('check update', function(done) {
-    var post = Post();
-    post.fetch(created_id, function(err) {
+    Post.get(created_id, function(err, post) {
         assert.ifError(err);
         assert.equal(post.title, 'new title');
         assert.equal(post.author, 'post author');
@@ -134,8 +129,7 @@ test('update directly via id', function(done) {
 });
 
 test('check update', function(done) {
-    var post = Post();
-    post.fetch(created_id, function(err) {
+    Post.get(created_id, function(err, post) {
         assert.ifError(err);
         assert.equal(post.title, 'foobar');
         assert.equal(post.author, 'post author');
@@ -144,15 +138,14 @@ test('check update', function(done) {
 });
 
 test('remove', function(done) {
-    var post = Post();
-    post.fetch(created_id, function(err) {
+    Post.get(created_id, function(err, post) {
         assert.ifError(err);
         assert.equal(post.title, 'foobar');
         assert.equal(post.author, 'post author');
 
         post.destroy(function(err) {
             assert.ifError(err);
-            post.fetch(created_id, function(err) {
+            Post.get(created_id, function(err) {
                 assert.equal(err.status, 404);
                 done();
             });

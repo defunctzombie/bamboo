@@ -1,13 +1,16 @@
 var Emitter = require('emitter');
+var xtend = require('xtend');
 
-var config = require('./config');
 var ArrayModel = require('./array_model');
 
-var Model = function(opt) {
-    var properties = Object.keys(opt);
+var Model = function(schema, opt) {
+    opt = opt || {};
+    schema = schema || {};
 
-    // ajax function for CRUD
-    var ajax = config.ajax;
+    var properties = Object.keys(schema);
+
+    // sync function for CRUD
+    var sync = opt.sync;
 
     var Construct = function(initial) {
         if (!(this instanceof Construct)) {
@@ -49,39 +52,29 @@ var Model = function(opt) {
         });
 
         properties.forEach(function(prop) {
-            var config = opt[prop];
+            var config = schema[prop];
 
             var prop_val = (initial) ? initial[prop] : undefined;
 
             if (config instanceof Array) {
                 var item = config[0];
 
+                // shit... so in this case, we don't need a submodel
+                // the issue is we have created a Model for each item
+                // but, our model does not get the proper url rool
                 if (typeof item === 'object') {
-                    prop_val = ArrayModel(Model(item), prop_val, self);
+                    prop_val = ArrayModel(Model(item, opt), prop_val, self);
                 }
                 else {
                     prop_val = ArrayModel(item, prop_val, self);
                 }
             }
 
+            var is_constructor = false;
+
             if (prop_val && config instanceof Function && !(prop_val instanceof config)) {
+                is_constructor = true;
                 prop_val = config(prop_val);
-            }
-
-            if (config.type === 'property') {
-                Object.defineProperty(self, prop, {
-                    enumerable: false,
-                    get: config.get
-                });
-
-                function change_event() {
-                    self.emit('change ' + prop);
-                }
-
-                config.depends.forEach(function(parent_prop) {
-                    self.on('change ' + parent_prop, change_event);
-                });
-                return;
             }
 
             // create an object wrapper, this lets us emit events
@@ -106,14 +99,64 @@ var Model = function(opt) {
                         }
                     }
                 });
-                return Object.create(null, properties);
+
+                var proto = null;
+                return Object.create(proto, properties);
             }
 
-            // user specified an inner object
-            var keys = Object.keys(config);
-            if (keys.length > 0) {
+            if (config instanceof Function) {
+                // oh.. so the issue is that if property of a model is a model
+                // then we need to pass the events along?
+                //
+                // the inside one is a model
+                // but we need the event to be emitted on our property
+                // fuck
+                // we could connect to 'change' events on the model obj
+                // this would have change, key, val, old
+                // then we can concat the key and emit on ourselves too
+                //
+                // if we are function, getting needs to return constructed model
+                //
+                //console.log(config);
+                //
+                // see if it has keys
+                Object.defineProperty(self, prop, {
+                    enumerable: true,
+                    get: function() {
+                        return prop_val;
+                    },
+                    set: function(val) {
+                        var old = prop_val;
 
-                prop_val = inner_obj(prop, config, prop_val);
+                        // this handles the case of setting via same object
+                        // we don't need to call constructor
+                        if (val instanceof config) {
+                            prop_val = val
+                        }
+                        else {
+                            prop_val = config(val);
+                        }
+
+                        self._saved = false;
+                        self.emit('change ' + prop, prop_val, old);
+                    }
+                });
+
+                return;
+            }
+
+            // if config is a function
+            // then assume constructor
+            // we need to use that constructor...
+
+            // user specified an inner object
+            // but don't do this for arrays
+            var keys = Object.keys(config);
+            if ( !(config instanceof Array) && keys.length > 0) {
+                // no value set by default
+                if (prop_val) {
+                    prop_val = inner_obj(prop, config, prop_val);
+                }
 
                 // if the nothing above captured and config is a regular object
                 // see if it has keys
@@ -126,7 +169,16 @@ var Model = function(opt) {
                         var old = prop_val;
                         prop_val = inner_obj(prop, config, val);
                         self._saved = false;
+
                         self.emit('change ' + prop, prop_val, old);
+
+                        // we really need to emit change events for
+                        // anything like author.name as well
+                        var props = prop_val;
+                        Object.keys(props).forEach(function(key) {
+                            var path = prop + '.' + key;
+                            self.emit('change ' + path, props[key], (old ? old[key] : undefined));
+                        });
                     }
                 });
 
@@ -182,11 +234,6 @@ var Model = function(opt) {
     Construct.prototype.save = function(cb) {
         var self = this;
 
-        // TODO, not sure about this...
-        if (self.parent) {
-            return self.parent.save();
-        }
-
         cb = cb || function() {};
 
         var ajax_opt = {
@@ -202,7 +249,7 @@ var Model = function(opt) {
         var is_new = self.is_new();
         ajax_opt.method = is_new ? 'POST' : 'PUT';
 
-        ajax(ajax_opt, function(err, res) {
+        sync(ajax_opt, function(err, res) {
             if (err) {
                 return cb(err);
             }
@@ -218,18 +265,23 @@ var Model = function(opt) {
         });
     };
 
-    Construct.prototype.fetch = function(id, cb) {
+    Construct.prototype.fetch = function(cb) {
         var self = this;
 
+        // nothing to fetch if we don't have an id
+        if (!self.id) {
+            return;
+        }
+
         var ajax_opt = {
-            url: self.url_root + '/' + id,
+            url: self.url_root + '/' + self.id,
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
             }
         };
 
-        ajax(ajax_opt, function(err, res) {
+        sync(ajax_opt, function(err, res) {
             if (err) {
                 return cb(err);
             }
@@ -256,7 +308,7 @@ var Model = function(opt) {
             method: 'DELETE'
         };
 
-        ajax(ajax_opt, function(err) {
+        sync(ajax_opt, function(err) {
             if (err) {
                 return cb(err);
             }
@@ -264,6 +316,65 @@ var Model = function(opt) {
             self.emit('destroy');
             cb(null);
         });
+    };
+
+    /// Class functions
+
+    // get a single Model instance by id
+    Construct.get = function(id, cb) {
+        var self = this;
+
+        var ajax_opt = {
+            url: self.url_root + '/' + id,
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        };
+
+        sync(ajax_opt, function(err, res) {
+            if (err) {
+                return cb(err);
+            }
+
+            var body = res.body;
+            return cb(null, Construct(body));
+        });
+    };
+
+    // query for a list of Models
+    // @param [Object] query optional query object
+    Construct.find = function(query, cb) {
+        var self = this;
+
+        if (typeof query === 'function') {
+            cb = query;
+            query = {}
+        }
+
+        var ajax_opt = {
+            url: self.url_root,
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        };
+
+        sync(ajax_opt, function(err, res) {
+            if (err) {
+                return cb(err);
+            }
+
+            var body = res.body;
+            return cb(null, body.map(Construct));
+        });
+    };
+
+    // copy this model and optionally mixin some new shit
+    Construct.extend = function(more_schema, more_opt) {
+        more_schema = more_schema || {};
+        more_opt = more_opt || {};
+        return Model(xtend(schema, more_schema), xtend(opt, more_opt));
     };
 
     return Construct;

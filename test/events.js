@@ -1,6 +1,7 @@
 // test changing properties
 
 var assert = require('assert');
+var after = require('after');
 
 var Model = require('../model');
 
@@ -27,12 +28,32 @@ test('top level changes', function(done) {
     post.title = 'foobar';
 });
 
-test('nested change', function(done) {
+// changing the primary should trigger event on primary
+// and on subfield
+// then you should still be able to change the subfield
+// and trigger event only on subfield
+test('nested change - primary', function(done) {
     var post = Post();
 
     // because author is a nested object
-    // it will start out {}
-    assert.ok(post.author);
+    // but will start out undefined
+    assert.ok(post.author === undefined);
+
+    done = after(3, done);
+
+    post.once('change author', function(val) {
+        assert.deepEqual(val, { name: undefined, email: undefined });
+        done();
+    });
+
+    post.once('change author.name', function(val) {
+        assert.equal(val, undefined);
+        assert.equal(post.author.name, undefined);
+        done();
+    });
+
+    // need to set author to something first
+    post.author = {};
 
     post.once('change author.name', function(val) {
         assert.equal(val, 'Edgar Poe');
@@ -40,7 +61,38 @@ test('nested change', function(done) {
         done();
     });
 
+    // setting this will trigger above change
     post.author.name = 'Edgar Poe';
+});
+
+// changing entire subobject should trigger change in primary
+// and subfield
+test('nested change - field', function(done) {
+    var post = Post();
+
+    // because author is a nested object
+    // but will start out undefined
+    assert.ok(post.author === undefined);
+
+    done = after(2, done);
+
+    post.once('change author', function(val) {
+        assert.equal(val.name, 'Edgar Poe');
+        assert.equal(post.author.name, 'Edgar Poe');
+        done();
+    });
+
+    // changing the author caused a name change
+    post.once('change author.name', function(val) {
+        assert.equal(val, 'Edgar Poe');
+        assert.equal(post.author.name, 'Edgar Poe');
+        done();
+    });
+
+    // setting the author should trigger property change too
+    post.author = {
+        name: 'Edgar Poe'
+    };
 });
 
 // we change the entire sub object

@@ -46,6 +46,11 @@ var Post = Collection();
 var app = express();
 
 app.use(function(req, res, next) {
+    res.set('Cache-Control', 'no-cache');
+    next();
+});
+
+app.use(function(req, res, next) {
     req.wrap = function(cb) {
         return function() {
             if (arguments[0]) {

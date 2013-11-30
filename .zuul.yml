@@ -6,6 +6,6 @@ browsers:
   - name: firefox
     version: 23..latest
   - name: sarafi
-    version: 6..latest
+    version: 5..latest
   - name: ie
     version: 10..latest
