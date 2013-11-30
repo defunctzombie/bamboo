@@ -70,10 +70,9 @@ var Model = function(schema, opt) {
                 }
             }
 
-            var is_constructor = false;
+            var is_constructor = (config instanceof Function);
 
-            if (prop_val && config instanceof Function && !(prop_val instanceof config)) {
-                is_constructor = true;
+            if (prop_val && is_constructor && !(prop_val instanceof config)) {
                 prop_val = config(prop_val);
             }
 
@@ -105,20 +104,6 @@ var Model = function(schema, opt) {
             }
 
             if (config instanceof Function) {
-                // oh.. so the issue is that if property of a model is a model
-                // then we need to pass the events along?
-                //
-                // the inside one is a model
-                // but we need the event to be emitted on our property
-                // fuck
-                // we could connect to 'change' events on the model obj
-                // this would have change, key, val, old
-                // then we can concat the key and emit on ourselves too
-                //
-                // if we are function, getting needs to return constructed model
-                //
-                //console.log(config);
-                //
                 // see if it has keys
                 Object.defineProperty(self, prop, {
                     enumerable: true,
@@ -144,10 +129,6 @@ var Model = function(schema, opt) {
 
                 return;
             }
-
-            // if config is a function
-            // then assume constructor
-            // we need to use that constructor...
 
             // user specified an inner object
             // but don't do this for arrays
