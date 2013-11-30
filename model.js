@@ -176,6 +176,8 @@ var Model = function(schema, opt) {
 
     Emitter(Construct.prototype);
 
+    Construct.url_root = opt.url_root;
+
     Construct.prototype.toJSON = function() {
         var self = this;
         var obj = {};

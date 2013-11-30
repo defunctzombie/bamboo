@@ -9,9 +9,7 @@ suite('Model#extend');
 
 var Post = Model({
     title: String
-});
-
-Post.url_root = '/foobar';
+}, { url_root: '/foobar' });
 
 test('extending should work', function() {
     var SuperPost = Post.extend();

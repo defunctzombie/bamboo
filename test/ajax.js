@@ -14,10 +14,7 @@ test('build a model', function() {
     Post = Model({
         title: String,
         author: String
-    }, { sync: ajax });
-
-    // set the urlroot defining the basepath
-    Post.url_root = '/posts';
+    }, { sync: ajax, url_root: '/posts' });
 })
 
 test('basic model', function() {
