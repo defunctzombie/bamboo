@@ -1,6 +1,6 @@
 {
   "name": "bamboo",
-  "version": "0.0.1-pre2",
+  "version": "0.0.2",
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "dependencies": {
     "emitter-component": "1.1.0",
