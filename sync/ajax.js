@@ -4,25 +4,18 @@ module.exports = function superagent_adapter(opts, cb) {
 
     var url = opts.url;
     var method = opts.method;
-    var headers = {
-        'Accept': 'application/json'
-    };
 
     var query = opts.query;
     var body = opts.body;
-
-    if (body) {
-        headers['Content-Type'] = 'application/json';
-    }
 
     // METHOD determines the function
     // GET, PUT, POST, DELETE
     var req = superagent(method, url);
 
-    if (headers) {
-        for (var key in headers) {
-            req.set(key, headers[key]);
-        }
+    req.set('Accept', 'application/json');
+
+    if (body) {
+        req.set('Content-Type', 'application/json');
     }
 
     if (query) {
@@ -30,7 +23,7 @@ module.exports = function superagent_adapter(opts, cb) {
     }
 
     // TODO patch?
-    if (body && (/POST/i.test(method) || /PUT/i.test(method))) {
+    if (body && (method === 'POST' || method === 'PUT')) {
         req.send(body);
     }
 
