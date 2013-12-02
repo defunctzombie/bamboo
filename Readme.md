@@ -4,9 +4,11 @@ A model library for client side javascript making it easy to load and persist ja
 
 ## overview
 
-The idea behind bamboo is that loading and persisting basic object-ish resources (Plain Old Javascript Objects) should be easy and work well within view/template binding libraries.
+One problem common to many web apps is the need to create and load document like resources whether it be posts, events, users, etc. These resources typically have a predefined schema and url routs. Using raw ajax requests for all of these CRUD operations leads to repeating lots of boilerplate code and complexity. However, we also don't want to sacrifice working with these loaded resources in idomatic javascript when possible; this is where bamboo is used.
 
 To accomplish this, you define a basic schema for your models and provide a sync function to use. The schema is used to define which properties will emit change events when changed. This plays nicely with view/template libraries that can bind to such events.
+
+Additionally, bamboo Models instances behave as much like native javascript objects as possible. You can set and get properties defined by the schema or ad-hoc.
 
 Complete documentation can be found on the [wiki] and a simple getting started example is outlined below.
 
@@ -26,20 +28,12 @@ var Post = Model({
         name: String,
         email: String
     }
-}, { sync: ajax });
+}, { sync: ajax, url_root: '/posts' });
 ```
 
-### Set a base url
+See the [sync][wiki-sync] wiki page for an overview of how models are persisted
 
-This will be the basepath for url resources. Typically it will be the `plural` of whatever noun used for the model.
-
-```javascript
-Post.url_root = '/posts';
-```
-
-See the [sync][wiki-sync] wiki page for an overview of how these routes are used.
-
-### instantiate a new model
+### Instantiate a new model
 
 Create a Post instance on the client and persist to the server.
 
@@ -81,9 +75,9 @@ post.save(function(err) {
 });
 ```
 
-See the [options][wiki-options] wiki page for details on writing a sync function.
+See the [sync][wiki-sync] wiki page for details on writing a sync function.
 
-### reload a persisted model
+### Fetch a persisted model
 
 Our first model has been persisted to the server; we could load it on another page assuming we know the id of the post we want.
 
@@ -101,7 +95,7 @@ Post.find(function(err, posts) {
 });
 ```
 
-### documentation
+## documentation
 
 See the [wiki] pages and examples for more exotic uses and how a post can contain an array of comments.
 
