@@ -334,7 +334,21 @@ var Model = function(schema, opt) {
     Construct.extend = function(more_schema, more_opt) {
         more_schema = more_schema || {};
         more_opt = more_opt || {};
-        return Model(xtend(schema, more_schema), xtend(opt, more_opt));
+        var New_Model = Model(xtend(schema, more_schema), xtend(opt, more_opt));
+
+        for (var key in Construct) {
+            if (!New_Model[key]) {
+                New_Model[key] = Construct[key]
+            }
+        }
+
+        for (var key in Construct.prototype) {
+            if (!New_Model.prototype[key]) {
+                New_Model.prototype[key] = Construct.prototype[key]
+            }
+        }
+
+        return New_Model;
     };
 
     return Construct;

@@ -11,12 +11,22 @@ var Post = Model({
     title: String
 }, { url_root: '/foobar' });
 
+Post.prototype.foo = function() {};
+Post.bar = function() {};
+
 test('extending should work', function() {
     var SuperPost = Post.extend();
     SuperPost.url_root = '/foobaz';
 
     assert.equal(Post.url_root, '/foobar');
     assert.equal(SuperPost.url_root, '/foobaz');
+});
+
+test('extend should preserve prototypes', function() {
+    var SuperPost = Post.extend();
+
+    assert.equal(SuperPost.prototype.foo, Post.prototype.foo);
+    assert.equal(SuperPost.bar, Post.bar);
 });
 
 test('extend with additional schema', function() {
