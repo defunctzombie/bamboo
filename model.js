@@ -178,6 +178,12 @@ var Model = function(schema, opt) {
 
     Construct.url_root = opt.url_root;
 
+    // make a copy of the instance with same properties
+    Construct.prototype.clone = function() {
+        var self = this;
+        return Construct(self);
+    };
+
     Construct.prototype.toJSON = function() {
         var self = this;
         var obj = {};
