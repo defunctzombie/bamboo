@@ -14,17 +14,14 @@ module.exports = function superagent_adapter(opts, cb) {
 
     req.set('Accept', 'application/json');
 
-    if (body) {
-        req.set('Content-Type', 'application/json');
-    }
-
     if (query) {
         req.query(query);
     }
 
     // TODO patch?
     if (body && (method === 'POST' || method === 'PUT')) {
-        req.send(body);
+        req.set('Content-Type', 'application/json');
+        req.send(body.toJSON());
     }
 
     req.end(function(err, res) {

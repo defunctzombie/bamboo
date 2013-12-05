@@ -183,14 +183,15 @@ var Model = function(schema, opt) {
         var obj = {};
 
         properties.forEach(function(prop) {
-            if (!self[prop]) {
+            // if property is not set, then ignore
+            if (self[prop] === undefined) {
                 return;
             }
 
             obj[prop] = self[prop];
         });
 
-        return obj;
+        return JSON.stringify(obj);
     };
 
     // if the model has an ID property, then it is not considered new

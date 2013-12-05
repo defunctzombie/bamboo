@@ -13,7 +13,8 @@ var Post = undefined;
 test('build a model', function() {
     Post = Model({
         title: String,
-        author: String
+        author: String,
+        random: Boolean
     }, { sync: ajax, url_root: '/posts' });
 })
 
@@ -64,6 +65,20 @@ test('is_new() - basic', function() {
     // simulated having a model from the server
     post.id = '123456';
     assert.ok(! post.is_new());
+});
+
+// test that false values are serialized as expected
+test('toJSON', function() {
+    var post = Post();
+    post.title = 'foobar';
+    post.random = false;
+
+    var exp = {
+        title: "foobar",
+        random: false
+    };
+
+    assert.equal(post.toJSON(), JSON.stringify(exp));
 });
 
 var created_id = undefined;
