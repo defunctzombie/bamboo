@@ -67,20 +67,6 @@ test('is_new() - basic', function() {
     assert.ok(! post.is_new());
 });
 
-// test that false values are serialized as expected
-test('toJSON', function() {
-    var post = Post();
-    post.title = 'foobar';
-    post.random = false;
-
-    var exp = {
-        title: "foobar",
-        random: false
-    };
-
-    assert.equal(post.toJSON(), JSON.stringify(exp));
-});
-
 var created_id = undefined;
 test('is_new() - after save', function(done) {
     // create a new post

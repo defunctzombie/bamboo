@@ -188,16 +188,25 @@ var Model = function(schema, opt) {
         var self = this;
         var obj = {};
 
+        if (self.id) {
+            obj['id'] = self.id;
+        }
+
         properties.forEach(function(prop) {
             // if property is not set, then ignore
             if (self[prop] === undefined) {
                 return;
             }
 
+            if (self[prop] instanceof ArrayModel) {
+                obj[prop] = self[prop].toJSON();
+                return;
+            }
+
             obj[prop] = self[prop];
         });
 
-        return JSON.stringify(obj);
+        return obj;
     };
 
     // if the model has an ID property, then it is not considered new

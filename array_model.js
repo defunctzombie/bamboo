@@ -26,7 +26,9 @@ ArrayModel.prototype = new Array();
 Emitter(ArrayModel.prototype);
 
 ArrayModel.prototype.toJSON = function() {
-    return Array.prototype.slice.call(this);
+    return this.map(function(val) {
+        return val.toJSON ? val.toJSON() : val;
+    });
 };
 
 ArrayModel.prototype.push = function(obj) {
