@@ -5,7 +5,7 @@ browsers:
     version: 28..latest
   - name: firefox
     version: 23..latest
-  - name: sarafi
+  - name: safari
     version: 5..latest
   - name: ie
     version: 10..latest
