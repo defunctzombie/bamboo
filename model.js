@@ -3,7 +3,10 @@ var xtend = require('xtend');
 
 var ArrayModel = require('./array_model');
 
-var Model = function(schema, opt) {
+var Model = function() {
+};
+
+function builder(schema, opt) {
     opt = opt || {};
     schema = schema || {};
 
@@ -63,7 +66,7 @@ var Model = function(schema, opt) {
                 // the issue is we have created a Model for each item
                 // but, our model does not get the proper url rool
                 if (typeof item === 'object') {
-                    prop_val = ArrayModel(Model(item, opt), prop_val, self);
+                    prop_val = ArrayModel(builder(item, opt), prop_val, self);
                 }
                 else {
                     prop_val = ArrayModel(item, prop_val, self);
@@ -95,12 +98,20 @@ var Model = function(schema, opt) {
                             var old = value_holder;
                             value_holder = val;
                             self.emit('change ' + path, val, old);
+                            self.emit('change', prop, prop_val, old);
                         }
                     }
                 });
 
                 var proto = null;
                 return Object.create(proto, properties);
+            }
+
+            // handles passing through change events
+            // should not be inside Object.set below since we need the same function instance
+            // to properly use .off
+            function handle_change(inner_prop, prop_val, old) {
+                self.emit('change ' + prop + '.' + inner_prop, prop_val, old);
             }
 
             if (config instanceof Function) {
@@ -113,6 +124,10 @@ var Model = function(schema, opt) {
                     set: function(val) {
                         var old = prop_val;
 
+                        if (old instanceof Model) {
+                            old.off('change', handle_change);
+                        }
+
                         // this handles the case of setting via same object
                         // we don't need to call constructor
                         if (val instanceof config) {
@@ -122,7 +137,14 @@ var Model = function(schema, opt) {
                             prop_val = config(val);
                         }
 
+                        // need way to identify that this is a model
+                        // nested bamboo Models, we need to pass through the change events
+                        if (prop_val instanceof Model) {
+                            prop_val.on('change', handle_change);
+                        }
+
                         self._saved = false;
+                        self.emit('change', prop, prop_val, old);
                         self.emit('change ' + prop, prop_val, old);
                     }
                 });
@@ -150,8 +172,8 @@ var Model = function(schema, opt) {
                         var old = prop_val;
                         prop_val = inner_obj(prop, config, val);
                         self._saved = false;
-
                         self.emit('change ' + prop, prop_val, old);
+                        self.emit('change', prop, prop_val, old);
                     }
                 });
 
@@ -169,11 +191,13 @@ var Model = function(schema, opt) {
                     prop_val = val;
                     self._saved = false;
                     self.emit('change ' + prop, prop_val, old);
+                    self.emit('change', prop, prop_val, old);
                 }
             });
         });
     };
 
+    Construct.prototype = new Model();
     Emitter(Construct.prototype);
 
     Construct.url_root = opt.url_root;
@@ -349,7 +373,7 @@ var Model = function(schema, opt) {
     Construct.extend = function(more_schema, more_opt) {
         more_schema = more_schema || {};
         more_opt = more_opt || {};
-        var New_Model = Model(xtend(schema, more_schema), xtend(opt, more_opt));
+        var New_Model = builder(xtend(schema, more_schema), xtend(opt, more_opt));
 
         for (var key in Construct) {
             if (!New_Model[key]) {
@@ -369,4 +393,4 @@ var Model = function(schema, opt) {
     return Construct;
 };
 
-module.exports = Model;
+module.exports = builder;

@@ -7,6 +7,11 @@ var Model = require('../model');
 
 suite('events');
 
+var Author = Model({
+    name: String,
+    email: String
+});
+
 // placeholder for the Post model
 var Post = Model({
     title: String,
@@ -58,6 +63,65 @@ test('nested change - primary', function(done) {
 
     // setting this will trigger above change
     post.author.name = 'Edgar Poe';
+});
+
+test('nested change - field of submodel', function(done) {
+    var Post = Model({
+        title: String,
+        author: Author
+    });
+    var post = Post();
+
+    // because author is a nested object
+    // but will start out undefined
+    assert.ok(post.author === undefined);
+
+    done = after(6, done);
+
+    post.once('change author', function(val) {
+        assert.equal(post.author.name, undefined);
+        assert.equal(post.author.email, undefined);
+        done();
+    });
+
+    // need to set author to something first
+    post.author = {};
+
+    post.author.once('change name', function(val) {
+        assert.equal(val, 'Edgar Poe');
+        done();
+    });
+
+    post.author.once('change', function(prop, val) {
+        assert.equal(prop, 'name');
+        assert.equal(val, 'Edgar Poe');
+        done();
+    });
+
+    post.on('change author.name', function(val) {
+        assert.equal(val, 'Edgar Poe');
+        assert.equal(post.author.name, 'Edgar Poe');
+        done();
+    });
+
+    // setting this will trigger above change
+    post.author.name = 'Edgar Poe';
+
+    // test that changing stuff on original author model
+    // will not cause events on post
+    // if the post author has been changed
+    var orig = post.author;
+    post.author = {};
+    assert.equal(post.author.name, undefined);
+    post.author.name = 'Edgar Poe';
+
+    // should still be event on original model
+    // not not an event on the post anymore
+    orig.once('change name', function(val) {
+        assert.equal(val, 'Foobar');
+        done();
+    });
+    orig.name = 'Foobar';
 });
 
 // changing entire subobject should trigger change in primary
