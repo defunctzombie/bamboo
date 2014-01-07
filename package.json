@@ -8,7 +8,7 @@
     "xtend": "2.1.1"
   },
   "scripts": {
-    "test": "zuul test/index.js",
+    "test": "zuul -- test/index.js",
     "test-local": "zuul --local 8080 -- test/index.js"
   },
   "repository": {
@@ -17,7 +17,7 @@
   },
   "main": "./index.js",
   "devDependencies": {
-    "zuul": "~1.0.9",
+    "zuul": "~1.3.0",
     "mocha": "1.14.0",
     "express": "3.4.5",
     "after": "0.8.1",
