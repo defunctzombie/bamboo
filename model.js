@@ -15,6 +15,8 @@ function builder(schema, opt) {
     // sync function for CRUD
     var sync = opt.sync;
 
+    var id_param = opt.id || 'id';
+
     var Construct = function(initial) {
         if (!(this instanceof Construct)) {
             return new Construct(initial);
@@ -31,7 +33,7 @@ function builder(schema, opt) {
         self.url_root = Construct.url_root;
 
         if (initial) {
-            self.id = initial.id;
+            self[id_param] = initial[id_param];
         }
 
         // url property can be used to overrride the model's url
@@ -47,7 +49,7 @@ function builder(schema, opt) {
                     return self.url_root;
                 }
 
-                return self.url_root + '/' + self.id;
+                return self.url_root + '/' + self[id_param];
             },
             set: function(val) {
                 _url = val;
@@ -212,8 +214,8 @@ function builder(schema, opt) {
         var self = this;
         var obj = {};
 
-        if (self.id) {
-            obj['id'] = self.id;
+        if (self[id_param]) {
+            obj[id_param] = self[id_param];
         }
 
         properties.forEach(function(prop) {
@@ -236,7 +238,7 @@ function builder(schema, opt) {
     // if the model has an ID property, then it is not considered new
     Construct.prototype.is_new = function() {
         var self = this;
-        return !self.id;
+        return !self[id_param];
     };
 
     // return true if the model state has been persistent to the server
@@ -268,7 +270,7 @@ function builder(schema, opt) {
             // only expect id back if new
             // for updating existing we don't do this?
             if (is_new) {
-                self.id = result.id;
+                self[id_param] = result[id_param];
             }
 
             return cb(null);
@@ -279,12 +281,12 @@ function builder(schema, opt) {
         var self = this;
 
         // nothing to fetch if we don't have an id
-        if (!self.id) {
+        if (!self[id_param]) {
             return;
         }
 
         var sync_opt = {
-            url: self.url_root + '/' + self.id,
+            url: self.url_root + '/' + self[id_param],
             method: 'GET'
         };
 
