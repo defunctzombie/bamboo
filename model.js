@@ -135,8 +135,14 @@ function builder(schema, opt) {
                         if (val instanceof config) {
                             prop_val = val
                         }
-                        else {
+                        // setting the value to something that isn't null or undefined
+                        else if (val != undefined && val != null) {
                             prop_val = config(val);
+                        }
+                        // otherwise set the value to undefined
+                        // this avoids calling constructors for undefined values
+                        else {
+                            prop_val = val;
                         }
 
                         // need way to identify that this is a model

@@ -180,3 +180,35 @@ test('obj change then trigger', function(done) {
     // same as post.author.email
     post.author.email = 'edgar@example.com';
 });
+
+test('properly handle setting undefined', function() {
+    var Post = Model({
+        title: String,
+        author: Author
+    });
+    var post = Post();
+
+    // starts out undefined
+    assert.equal(post.title, undefined);
+    assert.equal(post.author, undefined);
+
+    post.title = 'foobar';
+    assert.equal(post.title, 'foobar');
+
+    // becomes undefined
+    post.title = undefined;
+    assert.equal(post.title, undefined);
+
+    // should not ignore booleans
+    post.title = false;
+    assert.equal(post.title, 'false');
+
+    // same for nested field stuff
+    post.author = {
+        name: 'Tom'
+    };
+    assert.equal(post.author.name, 'Tom');
+    assert.equal(post.author.email, undefined);
+    post.author = null;
+    assert.equal(post.author, null);
+});
