@@ -310,7 +310,12 @@ function builder(schema, opt) {
         });
     };
 
-    Construct.prototype.destroy = function(cb) {
+    Construct.prototype.destroy = function(query, cb) {
+        if (!cb) {
+            cb = query;
+            query = undefined;
+        }
+
         var self = this;
         // model was never saved to server
         if (self.is_new()) {
@@ -319,7 +324,8 @@ function builder(schema, opt) {
 
         var sync_opt = {
             url: self.url,
-            method: 'DELETE'
+            method: 'DELETE',
+            query: query
         };
 
         sync(sync_opt, function(err) {
