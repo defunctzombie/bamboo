@@ -20,7 +20,7 @@ Before using the model to load or save resources, you must define the properties
 
 ```javascript
 var Model = require('bamboo/model');
-var ajax = require('bamboo/sync/ajax');
+var ajax = require('bamboo-sync-ajax');
 
 var Post = Model({
     title: String,
@@ -56,9 +56,9 @@ See the [Emitter][wiki-emitter] wiki page to learn more about how models emit ev
 
 ### Persist the model
 
-Bamboo persists and loads all models via a configured `sync` function. Bamboo ships with a working ajax function you can use, or you can wrap your favorite ajax library. See the [options][wiki-options] wiki page for details.
+Bamboo persists and loads all models via a configured `sync` function. In most cases you can use the [bamboo-sync-ajax](https://github.com/defunctzombie/bamboo-sync-ajax) module to sync over ajax. You can also wrap your favorite ajax library and roll your own. See the [options][wiki-options] wiki page for details.
 
-In our example post, we used the bamboo provided ajax `sync` function to persist our models over ajax. Bamboo avoids using globals or state and leaves this up to you to dictate how to build your app; You will need to specify the sync option for every Model you build and wish to persist (not every instance).
+In our example post, we used the bamboo-sync-ajax module to persist our models over ajax. Bamboo avoids using globals or state and leaves this up to you to dictate how to build your app; You will need to specify the sync option for every Model you build and wish to persist (not every instance).
 
 ```javascript
 // before a new post is saved, is_new() will return true

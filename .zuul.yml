@@ -1,10 +1,9 @@
 ui: mocha-qunit
-server: ./test/support/server.js
 browsers:
   - name: chrome
-    version: 28..latest
+    version: 30..latest
   - name: firefox
-    version: 23..latest
+    version: 25..latest
   - name: safari
     version: 5..latest
   - name: ie

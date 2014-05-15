@@ -4,7 +4,6 @@
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "dependencies": {
     "emitter-component": "1.1.0",
-    "superagent": "0.15.7",
     "xtend": "2.1.1"
   },
   "scripts": {
@@ -17,11 +16,8 @@
   },
   "main": "./index.js",
   "devDependencies": {
-    "zuul": "~1.5.2",
-    "mocha": "1.14.0",
-    "express": "3.4.5",
-    "after": "0.8.1",
-    "uuid": "1.4.1"
+    "zuul": "~1.6.4",
+    "after": "0.8.1"
   },
   "browser": {
     "emitter": "emitter-component"
