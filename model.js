@@ -273,11 +273,15 @@ function builder(schema, opt) {
                 return cb(err);
             }
 
-            // only expect id back if new
-            // for updating existing we don't do this?
-            if (is_new) {
-                self[id_param] = result[id_param];
-            }
+            // update all of the returned fields
+            Object.keys(result).forEach(function(key) {
+                // only update id param if we were new
+                if (key == id_param && !is_new) {
+                    return;
+                }
+
+                self[key] = result[key];
+            });
 
             return cb(null);
         });

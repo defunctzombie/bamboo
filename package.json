@@ -16,7 +16,7 @@
   },
   "main": "./index.js",
   "devDependencies": {
-    "zuul": "~1.6.4",
+    "zuul": "1.11.2",
     "after": "0.8.1"
   },
   "browser": {

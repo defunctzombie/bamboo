@@ -1,6 +1,7 @@
 # UNRELEASED
 
   * remove sync/ajax (moved to bamboo-sync-ajax module)
+  * update fields from POST response
 
 # 0.0.7 (2014-02-28)
 
