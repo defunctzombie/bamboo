@@ -47,6 +47,27 @@ test('should capture returned arguments from POST', function(done) {
     });
 });
 
+test('should update on fetch', function(done) {
+    function sync(opt, cb) {
+        assert.equal(opt.method, 'GET');
+        assert.equal(opt.url, '/posts/12345');
+        assert.equal(opt.query, undefined);
+        cb(null, {
+            title: 'hello world'
+        });
+    };
+
+    var post = Post.extend({}, { sync: sync })();
+    post.id = '12345';
+    post.title = 'test';
+    post.fetch(function(err) {
+        assert.ifError(err);
+        assert.equal(post.id, 12345);
+        assert.equal(post.title, 'hello world');
+        done();
+    });
+});
+
 test('destroy', function(done) {
     function sync(opt, cb) {
         assert.equal(opt.method, 'DELETE');
