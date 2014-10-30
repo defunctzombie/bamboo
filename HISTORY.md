@@ -1,4 +1,4 @@
-# UNRELEASED
+# 0.1.1 (2014-10-30)
 
   * allow for extra response option from sync for .find
 
