@@ -378,12 +378,12 @@ function builder(schema, opt) {
             method: 'GET'
         };
 
-        sync(sync_opt, function(err, result) {
+        sync(sync_opt, function(err, result, response) {
             if (err) {
                 return cb(err);
             }
 
-            return cb(null, result.map(Construct));
+            return cb(null, result.map(Construct), response);
         });
     };
 

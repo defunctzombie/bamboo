@@ -93,3 +93,34 @@ test('destroy with query arguments', function(done) {
     post.id = '12345';
     post.destroy({ q: true }, done);
 })
+
+test('should pass the response back for .find', function(done) {
+    function sync(opt, cb) {
+        assert.equal(opt.method, 'GET');
+        assert.equal(opt.url, '/posts');
+
+        var posts = [{
+            id: '1',
+            title: 'Hello World'
+        }, {
+            id: '2',
+            title: 'Magic Beans'
+        }];
+
+        var res = {
+            body: posts,
+            headers: {
+                foo: 'bar'
+            }
+        }
+
+        cb(null, posts, res);
+    };
+
+    var NewPost = Post.extend({}, { sync: sync });
+    NewPost.find(function(err, posts, res) {
+        assert.ifError(err);
+        assert.equal(posts.length, 2);
+        done();
+    });
+});
