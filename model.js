@@ -281,6 +281,9 @@ function builder(schema, opt) {
                 }
 
                 self[key] = result[key];
+                if (key == id_param) {
+                    self.emit('change id', result[key]);
+                }
             });
 
             return cb(null);
