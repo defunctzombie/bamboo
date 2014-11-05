@@ -1,3 +1,7 @@
+# UNRELEASED
+
+  * emit 'change id' when id changes
+
 # 0.1.1 (2014-10-30)
 
   * allow for extra response option from sync for .find
