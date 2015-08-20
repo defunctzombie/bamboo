@@ -1,3 +1,7 @@
+# UNRELEASED
+
+  * change emitter-component to component-emitter dependency
+
 # 0.1.2 (2014-11-05)
 
   * emit 'change id' when id changes
