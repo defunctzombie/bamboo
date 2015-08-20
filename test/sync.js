@@ -124,3 +124,32 @@ test('should pass the response back for .find', function(done) {
         done();
     });
 });
+
+test('should support loading to a simple array', function(done) {
+    function sync(opt, cb) {
+        assert.equal(opt.method, 'GET');
+        assert.equal(opt.url, '/posts/12345');
+        assert.equal(opt.query, undefined);
+        cb(null, {
+            id: '12345',
+            title: 'hello world',
+            tags: ['foo', 'bar']
+        });
+    };
+
+    var Post = Model({
+        title: String,
+        tags: [String]
+    }, { url_root: '/posts', sync: sync });
+
+    Post.get('12345', function(err, post) {
+        assert.ifError(err);
+        assert.equal(post.id, 12345);
+        assert.equal(post.title, 'hello world');
+        assert(post.tags instanceof Array);
+        assert.equal(post.tags.length, 2);
+        assert.equal(post.tags[0], 'foo');
+        assert.equal(post.tags[1], 'bar');
+        done();
+    });
+});
