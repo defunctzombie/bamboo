@@ -1,4 +1,4 @@
-var Emitter = require('emitter');
+var Emitter = require('component-emitter');
 var xtend = require('xtend');
 
 var ArrayModel = require('./array_model');

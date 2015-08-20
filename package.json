@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "author": "Roman Shtylman <shtylman@gmail.com>",
   "dependencies": {
-    "emitter-component": "1.1.0",
+    "component-emitter": "1.2.0",
     "xtend": "2.1.1"
   },
   "scripts": {
@@ -18,8 +18,5 @@
   "devDependencies": {
     "zuul": "1.11.2",
     "after": "0.8.1"
-  },
-  "browser": {
-    "emitter": "emitter-component"
   }
 }

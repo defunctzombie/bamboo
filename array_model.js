@@ -1,4 +1,4 @@
-var Emitter = require('emitter');
+var Emitter = require('component-emitter');
 
 var ArrayModel = function(Type, init, parent) {
     if (!(this instanceof ArrayModel)) {
