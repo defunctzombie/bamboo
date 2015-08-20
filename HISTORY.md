@@ -1,4 +1,4 @@
-# UNRELEASED
+# 0.1.3 (2015-08-20)
 
   * change emitter-component to component-emitter dependency
 
