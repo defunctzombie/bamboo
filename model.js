@@ -71,7 +71,7 @@ function builder(schema, opt) {
                     prop_val = ArrayModel(builder(item, opt), prop_val, self);
                 }
                 else {
-                    prop_val = ArrayModel(item, prop_val, self);
+                    prop_val = ArrayModel(item.extend({}, { url_root: self.url + item.url_root }), prop_val, self);
                 }
             }
 
