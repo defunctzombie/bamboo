@@ -14,6 +14,7 @@ function builder(schema, opt) {
 
     // sync function for CRUD
     var sync = opt.sync;
+    var form_field = opt.form_field;
 
     var id_param = opt.id || 'id';
 
@@ -259,10 +260,12 @@ function builder(schema, opt) {
 
         cb = cb || function() {};
 
+        var body = (form_field && self[form_field]) || self;
+
         var sync_opt = {
             url: self.url,
             method: 'PUT',
-            body: self
+            body: body
         };
 
         var is_new = self.is_new();
